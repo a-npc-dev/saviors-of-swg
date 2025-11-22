@@ -855,7 +855,7 @@ public:
 			allyTime->addMiliTime(90 * 1000);
 		}
 
-		if (sqrDistance < 10 * 10) {
+		if (sqrDistance < 5 * 5) {
 			Time* callForHelp = agent->getLastCallForHelp();
 
 			if (callForHelp == nullptr)

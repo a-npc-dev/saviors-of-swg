@@ -67,7 +67,7 @@ template<> bool CheckProspectInRange::check(AiAgent* agent) const {
 			radius = AiAgent::DEFAULTAGGRORADIUS;
 		}
 
-		radius = Math::min(96.f, radius * aggroMod);
+		radius = Math::min(48.f, radius * aggroMod);
 
 		return agent->isInRange(tar, radius);
 	}
@@ -254,10 +254,10 @@ template<> bool CheckFlee::check(AiAgent* agent) const {
 		return false;
 	}
 
-	int fleeChance = 75;
+	int fleeChance = 5;
 
 	if (agent->getPvpStatusBitmask() & ObjectFlag::AGGRESSIVE) {
-		fleeChance = 25;
+		fleeChance = 10;
 	}
 
 	if (System::random(1000) > fleeChance) {
@@ -623,10 +623,10 @@ template<> bool CheckCallForHelp::check(AiAgent* agent) const {
 		agent->eraseBlackboard("allyProspect");
 		return false;
 	}
-
-	if (agent->peekBlackboard("allyProspect")) {
-		return true;
-	}
+	// Don't want them to call for back up at all times
+	// if (agent->peekBlackboard("allyProspect")) {
+	// 	return true;
+	// }
 
 	Time* callForHelp = agent->getLastCallForHelp();
 
@@ -634,7 +634,8 @@ template<> bool CheckCallForHelp::check(AiAgent* agent) const {
 		if (!callForHelp->isPast())
 			return false;
 
-		if (System::random(100) < 75) {
+		// Call for back up should be very rare
+		if (System::random(100) < 99) {
 			callForHelp->updateToCurrentTime();
 			callForHelp->addMiliTime(60 * 1000);
 			return false;

@@ -1557,7 +1557,7 @@ bool AiAgentImplementation::validateStateAttack() {
 SceneObject* AiAgentImplementation::getTargetFromMap() {
 	TangibleObject* target = getThreatMap()->getHighestThreatAttacker();
 
-	if (target != nullptr && !defenderList.contains(target) && target->getDistanceTo(asAiAgent()) < 128.f && target->isAttackableBy(asAiAgent()) && lastDamageReceived.miliDifference() < 20000) {
+	if (target != nullptr && !defenderList.contains(target) && target->getDistanceTo(asAiAgent()) < 32.f && target->isAttackableBy(asAiAgent()) && lastDamageReceived.miliDifference() < 20000) {
 		if (target->isCreatureObject()) {
 			CreatureObject* creoTarget = target->asCreatureObject();
 
@@ -1567,7 +1567,7 @@ SceneObject* AiAgentImplementation::getTargetFromMap() {
 		} else {
 			addDefender(target);
 		}
-	} else if (target != nullptr && defenderList.contains(target) && (!target->isInRange(asAiAgent(), 128) || !target->isAttackableBy(asAiAgent()))) {
+	} else if (target != nullptr && defenderList.contains(target) && (!target->isInRange(asAiAgent(), 32) || !target->isAttackableBy(asAiAgent()))) {
 		if (target->isCreatureObject()) {
 			CreatureObject* tarCreo = target->asCreatureObject();
 
@@ -1594,7 +1594,7 @@ SceneObject* AiAgentImplementation::getTargetFromDefenders() {
 			if (tarObj != nullptr && tarObj->isCreatureObject()) {
 				CreatureObject* targetCreature = tarObj->asCreatureObject();
 
-				if (!targetCreature->isDead() && !targetCreature->isIncapacitated() && targetCreature->getDistanceTo(asAiAgent()) < 128.f && targetCreature->isAttackableBy(asAiAgent())) {
+				if (!targetCreature->isDead() && !targetCreature->isIncapacitated() && targetCreature->getDistanceTo(asAiAgent()) < 32.f && targetCreature->isAttackableBy(asAiAgent())) {
 					target = targetCreature;
 
 					break;
@@ -1861,57 +1861,57 @@ void AiAgentImplementation::runAway(CreatureObject* target, float range, bool ra
 	notifyObservers(ObserverEventType::FLEEING, target);
 	sendReactionChat(target, ReactionManager::FLEE);
 
-	setMovementState(AiAgent::FLEEING);
+	// setMovementState(AiAgent::FLEEING);
 
-	Vector3 runTrajectory;
-	Vector3 agentPosition = getWorldPosition();
-	Vector3 creaturePosition = target->getWorldPosition();
+	// Vector3 runTrajectory;
+	// Vector3 agentPosition = getWorldPosition();
+	// Vector3 creaturePosition = target->getWorldPosition();
 
-	if (random) {
-		runTrajectory.setX((creaturePosition.getX() + System::random(20)) - (agentPosition.getX() + System::random(20)));
-		runTrajectory.setY((creaturePosition.getY() + System::random(20)) - (agentPosition.getY() + System::random(20)));
-	} else {
-		runTrajectory.setX(agentPosition.getX() - creaturePosition.getX());
-		runTrajectory.setY(agentPosition.getY() - creaturePosition.getY());
-	}
+	// if (random) {
+	// 	runTrajectory.setX((creaturePosition.getX() + System::random(20)) - (agentPosition.getX() + System::random(20)));
+	// 	runTrajectory.setY((creaturePosition.getY() + System::random(20)) - (agentPosition.getY() + System::random(20)));
+	// } else {
+	// 	runTrajectory.setX(agentPosition.getX() - creaturePosition.getX());
+	// 	runTrajectory.setY(agentPosition.getY() - creaturePosition.getY());
+	// }
 
-	float directionAngle = atan2(runTrajectory.getX(), runTrajectory.getY());
+	// float directionAngle = atan2(runTrajectory.getX(), runTrajectory.getY());
 
-	directionAngle = M_PI / 2 - directionAngle;
+	// directionAngle = M_PI / 2 - directionAngle;
 
-	if (directionAngle < 0) {
-		float a = M_PI + directionAngle;
-		directionAngle = M_PI + a;
-	}
+	// if (directionAngle < 0) {
+	// 	float a = M_PI + directionAngle;
+	// 	directionAngle = M_PI + a;
+	// }
 
-	float distance = Math::max(1.0f, getWorldPosition().distanceTo(target->getWorldPosition()));
+	// float distance = Math::max(1.0f, getWorldPosition().distanceTo(target->getWorldPosition()));
 
-	runTrajectory = agentPosition + (range * (runTrajectory / distance));
+	// runTrajectory = agentPosition + (range * (runTrajectory / distance));
 
-	if (runTrajectory.getX() <= coordinateMin || runTrajectory.getX() >= coordinateMax || runTrajectory.getY() <= coordinateMin || runTrajectory.getY() >= coordinateMax) {
-		/* info(true) << " Agent trying to flee out of bounds to -- X = " << runTrajectory.getX() << "  Y = " << runTrajectory.getY() << "    With a Direction Angle of " << directionAngle << "  Distance from target to flee " << distance
-		<< "  A Range of " << range; */
+	// if (runTrajectory.getX() <= coordinateMin || runTrajectory.getX() >= coordinateMax || runTrajectory.getY() <= coordinateMin || runTrajectory.getY() >= coordinateMax) {
+	// 	/* info(true) << " Agent trying to flee out of bounds to -- X = " << runTrajectory.getX() << "  Y = " << runTrajectory.getY() << "    With a Direction Angle of " << directionAngle << "  Distance from target to flee " << distance
+	// 	<< "  A Range of " << range; */
 
-		return;
-	}
+	// 	return;
+	// }
 
-	if (isInNavMesh()) {
-		Vector3 runPoint(runTrajectory.getX(), runTrajectory.getY(), runTrajectory.getZ());
-		Sphere sphere(runPoint, 5.f);
-		Vector3 result;
+	// if (isInNavMesh()) {
+	// 	Vector3 runPoint(runTrajectory.getX(), runTrajectory.getY(), runTrajectory.getZ());
+	// 	Sphere sphere(runPoint, 5.f);
+	// 	Vector3 result;
 
-		if (PathFinderManager::instance()->getSpawnPointInArea(sphere, zone, result, true)) {
-			runTrajectory = result;
-		} else {
-			return;
-		}
-	}
+	// 	if (PathFinderManager::instance()->getSpawnPointInArea(sphere, zone, result, true)) {
+	// 		runTrajectory = result;
+	// 	} else {
+	// 		return;
+	// 	}
+	// }
 
-	stopWaiting();
-	clearPatrolPoints();
-	currentFoundPath = nullptr;
+	// stopWaiting();
+	// clearPatrolPoints();
+	// currentFoundPath = nullptr;
 
-	setNextPosition(runTrajectory.getX(), zone->getHeight(runTrajectory.getX(), runTrajectory.getY()), runTrajectory.getY(), getParent().get().castTo<CellObject*>());
+	// setNextPosition(runTrajectory.getX(), zone->getHeight(runTrajectory.getX(), runTrajectory.getY()), runTrajectory.getY(), getParent().get().castTo<CellObject*>());
 }
 
 void AiAgentImplementation::leash(bool forcePeace) {
@@ -3939,7 +3939,7 @@ void AiAgentImplementation::notifyPackMobs(SceneObject* attacker) {
 		if (targetSocialGroup.isEmpty() || targetSocialGroup.hashCode() != socialGroup)
 			continue;
 
-		float packRange = 20.f + (getLevel() / 100.f);
+		float packRange = 10.f + (getLevel() / 100.f);
 
 		if (getPvpStatusBitmask() & ObjectFlag::AGGRESSIVE)
 			packRange += 5.f;
